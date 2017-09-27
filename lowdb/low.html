@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  
+  <script src="https://unpkg.com/lodash@4/lodash.min.js"></script>
+  <script src="https://unpkg.com/lowdb@0.17/dist/low.min.js"></script>
+  <script src="https://unpkg.com/lowdb@0.17/dist/LocalStorage.min.js"></script>
+</head>
+<body>
+  <a href="./subPage/low_sub.html">go other page</a>
+  <button onclick='add()'>ADD</button>
+  <button onclick='del()'>DEL</button>
+  <div id="container"></div>
+
+  <script>
+    var adapter = new LocalStorage('db')
+    var db = low(adapter, {
+      async: true
+    })
+
+    db.set('user.name', 'typicode')
+      .write()
+    db.set('posts', [])
+      .write()
+    db.get('posts')
+      .push({ id: 1, title: 'lowdb is awesome'})
+      .write()
+    db.get('posts')
+      .push({ id: 2, title: 'lowdb is awesome'})
+      .write()
+
+    db._.mixin({
+      second: function(array) {
+        return array[1]
+      }
+    })
+
+    let start = Date.now()
+    for (let i = 0; i< 1000; i++ ) {
+      db.get('posts').push({id: i, title: `test demo ${i}`}).write()
+    }
+    console.log('time is',  Date.now() - start)
+    console.log(
+      db.get('posts')
+      .second()
+      .value()
+    )
+    // is equivalent to
+    // db.set('user.name', 'typicode')
+    //   .value()
+    // db.write()
+
+    function add () {
+      db.get('posts')
+      .push({ id: 1, title: 'lowdb is awesome'})
+      .write()
+      update()
+    }
+    function del () {
+      db.get('posts')
+        .split(-1)
+        .write()
+        update()
+    }
+    function update () {
+      document.getElementById('container').innerHTML=JSON.stringify(db.getState())
+    }
+    update()
+    console.log('xxx', db.get('posts').value())
+  </script>
+
+</body>
+</html>
