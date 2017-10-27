@@ -1,6 +1,6 @@
 let _ = require('lodash')
 
-let arr = new Array(10000).fill(111)
+let arr = new Array(10000).fill({a: 1})
 
 console.time('o')
 let result = _.uniq(arr)

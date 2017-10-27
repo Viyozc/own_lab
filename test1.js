@@ -12,6 +12,7 @@ function pow (n) {
   }
   return 1
 }
+
 console.time('xx')
 console.log(pow(10000))
 console.timeEnd('xx')

@@ -3,7 +3,8 @@ const _ = require('lodash')
 let data = [1, 2, 3]
 
 let chain = _.chain(data)
-
+let out = chain.take(2)
+let out2 = _(data).filter(e => e < 2)
 /**
 __actions__:Array(0) []
 __chain__:true

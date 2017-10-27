@@ -1,9 +1,6 @@
 
   // Populate the base array
-  var arr = []
-  for (let i = 1; i <= 900000; i++) {
-    arr[i - 1] = i
-  }
+  var arr = new Array(9999999).fill(123)
 
   function someFn (ix) {
     return ix * 5 + 1 / 3 * 8
@@ -16,7 +13,7 @@
   console.timeEnd('for')
 
   console.time('for,cache')
-  for (var i = 0, len = arr.length; i < len; i++) {
+  for (let i = 0, len = arr.length; i < len; i++) {
     someFn(arr[i])
   }
   console.timeEnd('for,cache')

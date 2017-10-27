@@ -1,0 +1,19 @@
+{
+  "name": "wh-cli",
+  "version": "1.0.0",
+  "description": "warehouse cli tools",
+  "main": "index.js",
+  "bin": {
+    "wh-cli": "./bin/index"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "viyozc",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^2.1.0",
+    "commander": "^2.11.0",
+    "win-spawn": "^2.0.0"
+  }
+}
