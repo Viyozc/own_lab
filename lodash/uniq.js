@@ -6,6 +6,7 @@ console.time('o')
 let result = _.uniq(arr)
 console.log(result)
 console.timeEnd('o')
+console.timeEnd('o')
 
 let set = new Set(arr)
 console.time('x')
