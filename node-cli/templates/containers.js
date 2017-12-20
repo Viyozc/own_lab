@@ -120,7 +120,7 @@ class Index extends Component {
 const mapStateToProps = (state, ownProps) => {
   return {
     error: state.errorMessage,
-    fetch: state.<%camelHolder%>ReducerIndexPage && state.<%camelHolder%>ReducerIndexPage.fetch
+    ...state.<%camelHolder%>ReducerIndexPage
   }
 }
 
