@@ -1,22 +1,23 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import assign from 'object-assign'
 import moment from 'moment'
-import { Form, message, Button } from 'antd'
+import { Form, message, Button, notification } from 'antd'
 
 import ContentComponent from 'components/common/content'
-import SearchComponent from 'components/common/search'
-import TableComponent from 'components/common/table'
+
 import Error from 'components/common/error'
 import Loading from 'components/common/loading'
-import Style from './style.less'
+// import Style from './index.less'
 
-import Search from 'components/<%pathHolder%>/search'
-import TableBox from 'components/<%pathHolder%>/table'
+import SearchQuery from 'components/common/searchQuery'
+import TableDetail from 'components/common/tableComponent'
 
 import { resetErrorMessage } from 'actions/error'
-import * as actions from 'actions/<%pathHolder%>'
+import actions from 'actions/<%pathHolder%>'
+
+const offset = 0
+const pageSize = 10
 
 class Index extends Component {
   constructor (props) {
@@ -26,52 +27,92 @@ class Index extends Component {
     }
   }
   componentWillMount () {
-    Style.use()
+    // Style.use()
   }
   componentDidMount () {
-
+    this.props.actions.fetchIndexList({offset, pageSize})
   }
   render () {
-    const { params } = this.props
-    if (!this.props.list && !this.props.error) {
-      return <Loading />
+    const { list, params, actions, loaction, totalCount, error } = this.props
+    if (!list) {
+      return error ?  <Error>{this.props.error.message || '未知错误'}</Error> : <Loading />
     }
-    if (this.props.error && !this.props.list) {
-      return <Error>{this.props.error.message || '未知错误'}</Error>
-    }
-    const formData = {
-      reqPlanNo: {
-        temp: temp
+
+    const column = [
+      {
+        title: 'test',
+        dataIndex: 'gmtCreate',
+        width: 150
       },
-      reqPlanStartTimeStr: {
-        value: temp ? moment(temp, 'YYYY-MM-DD') : undefined
+      {
+        title: 'test',
+        dataIndex: 'billNo',
+        width: 150
+      },
+      {
+        title: '操作',
+        dataIndex: 'oper',
+        width: 100,
+        render: (text, record) => (
+          <div>
+            <Button onClick={() => ()}>查看详情</Button>
+          </div>
+        )
       }
+    ]
+    const TableProps = {
+      location,
+      error,
+      column,
+      tableReset: this.state.tableReset,
+      offset: true,
+      list: list,
+      fetchList: actions.fetchIndexList,
+      totalCount
     }
-    let SearchBox = Form.create({
-      mapPropsToFields () {
-        return formData
+
+    const searchConfig = [
+      {
+        key: 'name',
+        label: '名称'
+      },
+      {
+        key: 'status',
+        label: '状态'
       }
-    })(Search)
+    ]
+
     return (
       <ContentComponent className='container'>
-        <SearchComponent>
-          <SearchBox />
-        </SearchComponent>
-        <TableComponent>
-          <TableBox
-            fetchList={this.props.actions.fetchIndexList}
-            list={this.props.list}
-            pagination={this.props.pagination}
-          />
-        </TableComponent>
+        <SearchQuery
+          config={searchConfig}
+          location={this.props.location}
+        />
+        <TableDetail
+          {...TableProps}
+        />
       </ContentComponent>
     )
   }
   componentWillReceiveProps (nextProps) {
-
+    if (!isEqual(this.props.location.query, nextProps.location.query)) {
+      this.props.actions.fetchIndexList({...nextProps.location.query, offset: 0, pageSize: 10})
+    }
+    if (!this.props.error && nextProps.error && this.props.list) {
+      message.error(nextProps.error.message)
+      this.props.actions.resetErrorMessage()
+      this.setState({modalLoading: false})
+    }
+    if (!this.props.handlePost && nextProps.handlePost) {
+      this.setState({ modalLoading: false, showModal: false, tableReset: false })
+      notification.success({
+        message: '通知',
+        description: '操作成功.'
+      })
+    }
   }
   componentWillUnmount () {
-    Style.unuse()
+    // Style.unuse()
     this.props.actions.resetErrorMessage()
   }
 }
@@ -85,7 +126,7 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    actions: bindActionCreators({...actions, resetErrorMessage: resetErrorMessage}, dispatch)
+    actions: bindActionCreators({...actions, resetErrorMessage}, dispatch)
   }
 }
 

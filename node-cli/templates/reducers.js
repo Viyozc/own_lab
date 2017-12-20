@@ -11,7 +11,7 @@ function IndexPage (state = null, action) {
     case ActionTypes.temp:
       switch (action.status) {
         case STATUS_SUCCESS:
-          return {...state, fetch: 'success'}
+          return {...state}
       }
       return state
   }

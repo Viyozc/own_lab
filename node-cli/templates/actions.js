@@ -4,7 +4,9 @@ import {
   wrapAction
 } from 'utils/fetch'
 
-let temp = (params) => {
+
+export {
+  fetchIndexList (params) {
   return wrapAction({
     type: ActionTypes.temp,
     endpoint: 'url',
@@ -12,7 +14,4 @@ let temp = (params) => {
     method: 'GET'
   })
 }
-
-export {
-  temp
 }
