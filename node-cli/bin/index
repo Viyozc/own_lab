@@ -1,13 +1,13 @@
 #! /usr/bin/env node
 
-var program = require('commander')
-var appInfo = require('../package.json')
-var spawn = require('win-spawn')
-var fs = require('fs')
-var path = require('path')
-var join = require('path').join
-var exists = require('fs').existsSync
-var chalk = require('chalk')
+const program = require('commander')
+const appInfo = require('../package.json')
+const spawn = require('win-spawn')
+const fs = require('fs')
+const path = require('path')
+const join = require('path').join
+const exists = require('fs').existsSync
+const chalk = require('chalk')
 
 if (process.argv.slice(2).join('') === '-v') {
   console.log('wh-cli: ' + appInfo.version)
@@ -127,7 +127,7 @@ function replaceReducer (name) {
   // let reducerUrl = join(process.cwd(), 'file.js')
   let data = fs.readFileSync(reducerUrl).toString()
   data = data.replace('// autoImport', `// autoImport\nimport ${urlCamel(name)}ReducerPage from './${name}.js'`)
-  data = data.replace('// autoReducer', `// autoReducer\n  ${urlCamel(name)}ReducerIndexPage: ${urlCamel(name)}ReducerPage.IndexPage,`)
+  data = data.replace('// autoReducer', `// autoReducer\n  ${urlCamel(name)}Page: ${urlCamel(name)}ReducerPage.IndexPage,`)
   fs.writeFileSync(reducerUrl, data)
 }
 

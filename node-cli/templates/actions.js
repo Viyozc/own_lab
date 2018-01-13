@@ -4,14 +4,13 @@ import {
   wrapAction
 } from 'utils/fetch'
 
-
-export {
+export default {
   fetchIndexList (params) {
-  return wrapAction({
-    type: ActionTypes.temp,
-    endpoint: 'url',
-    body: params,
-    method: 'GET'
-  })
-}
+	  return wrapAction({
+	    type: ActionTypes.temp,
+	    endpoint: 'url',
+	    body: params,
+	    method: 'GET'
+	  })
+  }
 }

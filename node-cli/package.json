@@ -1,6 +1,6 @@
 {
   "name": "wh-cli",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "warehouse cli tools",
   "main": "index.js",
   "bin": {

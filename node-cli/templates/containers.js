@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
-import moment from 'moment'
+import { isEqual } from 'lodash'
 import { Form, message, Button, notification } from 'antd'
 
 import ContentComponent from 'components/common/content'
@@ -55,7 +55,7 @@ class Index extends Component {
         width: 100,
         render: (text, record) => (
           <div>
-            <Button onClick={() => ()}>查看详情</Button>
+            <Button onClick={() => {}}>查看详情</Button>
           </div>
         )
       }
@@ -120,7 +120,7 @@ class Index extends Component {
 const mapStateToProps = (state, ownProps) => {
   return {
     error: state.errorMessage,
-    ...state.<%camelHolder%>ReducerIndexPage
+    ...state.<%camelHolder%>Page
   }
 }
 
