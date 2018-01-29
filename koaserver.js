@@ -24,7 +24,7 @@ router.get('/pdffile', (ctx, next) => {
     'Access-Control-Allow-Origin': '*',
     'Content-type': 'application/pdf'
   }
-  ctx.response.type = 'pdf'
+  // ctx.response.type = 'pdf'
   ctx.body = fs.createReadStream('./preview.pdf')
   // ctx.body = Buffer.from(ctx.response.body).toString('base64')
   console.log(ctx)
