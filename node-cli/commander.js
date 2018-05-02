@@ -1,0 +1,196 @@
+#! /usr/bin/env node
+
+const program = require('commander')
+const appInfo = require('../package.json')
+const spawn = require('win-spawn')
+const fs = require('fs')
+const path = require('path')
+const join = require('path').join
+const exists = require('fs').existsSync
+const chalk = require('chalk')
+
+if (process.argv.slice(2).join('') === '-v') {
+  console.log('wh-cli: ' + appInfo.version)
+  process.exit(1)
+}
+
+let project = require(join(process.cwd(), 'package.json'))
+console.log(project.name)
+if (project.name !== 'warehouse') {
+  error('not at the right project directory')
+  process.exit(1)
+}
+
+program
+     .version(appInfo.version)
+     .usage('<command> [options]')
+     .option('-n, --naction', 'No Actions')
+     .parse(process.argv)
+
+const root = process.argv[0]
+// const rootSrc = join(root, '../../lib/node_modules/wh-cli', 'templates')
+const rootSrc = path.join(__dirname, './templates')
+// console.log(path.resolve(rootSrc))
+const args = process.argv.slice(2)
+const defaultBase = 'fed'
+handle(program, {cwd: process.cwd()})
+
+function info (message) {
+  console.log(chalk.green.bold(message))
+}
+function error (message) {
+  console.error(chalk.red(message))
+}
+
+function handle (program, { cwd }) {
+  const [type, name] = program.args
+  const root = path.resolve(process.execPath)
+  if (!name) {
+    error('not have a page name')
+    process.exit(1)
+  }
+
+  try {
+    switch (type) {
+      case 'page':
+        copyAll()
+        break
+      case 'init':
+        init()
+    }
+  } catch (err) {
+    error(err)
+  }
+
+  function copyAll () {
+    addContainer(name)
+    addReducer(name)
+    addActions(name)
+    addConstants(name)
+    replaceReducer(name)
+  }
+
+  function init () {
+    let templates = join(rootSrc, 'init')
+    console.log(__dirname)
+    console.log(path.resolve(__dirname, templates))
+    console.log('init', process.cwd())
+  }
+}
+const fileConfig = [
+  {
+    src: 'containers',
+    dest: 'containers'
+  },
+  {
+    src: 'reducers',
+    dest: 'reducers'
+  },
+  {
+    src: 'constants',
+    dest: 'constants/actionTypes'
+  },
+  {
+    src: 'actions',
+    dest: 'actions'
+  }
+]
+
+function addContainer (filename) {
+  let srcContainer = join(rootSrc, 'containers.js')
+  let destDirect = join(process.cwd(), defaultBase, 'containers', filename)
+  let data = fs.readFileSync(srcContainer).toString()
+  let outData = replaceHolder(data, filename)
+  mkdirsSync(destDirect)
+  fs.writeFileSync(join(destDirect, 'index.js'), outData, 'utf8')
+  info(join(destDirect, 'index.js'), 'created')
+}
+
+function addReducer (filename) {
+  let srcReducer = join(rootSrc, 'reducers.js')
+  let destDirect = join(process.cwd(), defaultBase, 'reducers', filename.split('/').slice(0, -1).join('/'))
+  dealFlow(srcReducer, destDirect, filename)
+}
+
+function addConstants (filename) {
+  let srcConstants = join(rootSrc, 'constants.js')
+  let destDirect = join(process.cwd(), defaultBase, 'constants/actionTypes', filename.split('/').slice(0, -1).join('/'))
+  dealFlow(srcConstants, destDirect, filename)
+}
+
+function addActions (filename) {
+  let srcAction = join(rootSrc, 'actions.js')
+  let destDirect = join(process.cwd(), defaultBase, 'actions', filename.split('/').slice(0, -1).join('/'))
+  dealFlow(srcAction, destDirect, filename)
+}
+
+function replaceReducer (name) {
+  let reducerUrl = join(process.cwd(), 'fed/reducers/index.js')
+  // let reducerUrl = join(process.cwd(), 'file.js')
+  let data = fs.readFileSync(reducerUrl).toString()
+  data = data.replace('// autoImport', `// autoImport\nimport ${urlCamel(name)}ReducerPage from './${name}.js'`)
+  data = data.replace('// autoReducer', `// autoReducer\n  ${urlCamel(name)}Page: ${urlCamel(name)}ReducerPage.IndexPage,`)
+  fs.writeFileSync(reducerUrl, data)
+}
+
+function dealFlow (src, dest, filename) {
+  let data = fs.readFileSync(src).toString()
+  let outData = replaceHolder(data, filename)
+  mkdirsSync(dest)
+  let outFile = join(dest, filename.split('/').pop() + '.js')
+  checkFile(outFile)
+  fs.writeFileSync(outFile, outData, 'utf8')
+  info(join(dest, filename.split('/').pop() + '.js') + ' created')
+}
+
+function checkFile (path) {
+  if (fs.existsSync(path)) {
+    error(`${path} has already exists`)
+    process.exit(1)
+  }
+  return true
+}
+
+function travel (dir, callback) {
+  fs.readdirSync(dir).forEach(function (file) {
+    let pathname = path.join(dir, file)
+
+    if (fs.statSync(pathname).isDirectory()) {
+      travel(pathname, callback)
+    } else {
+      callback(pathname)
+    }
+  })
+}
+
+function mkdirsSync (dirname) {
+    // console.log(dirname)
+  if (fs.existsSync(dirname)) {
+      // error('file has existed')
+    return true
+  } else {
+    if (mkdirsSync(path.dirname(dirname))) {
+      fs.mkdirSync(dirname)
+      return true
+    }
+  }
+}
+
+function replaceHolder (data, name) {
+  let out = data.replace(/<%pathHolder%>/g, name)
+  return out.replace(/<%camelHolder%>/g, urlCamel(name))
+}
+
+function urlCamel (url) {
+  let arr = url.split('/')
+  let result = arr.map((v, i) => {
+    if (i > 0) {
+      let deal = v.toLowerCase()
+      let out = deal.slice(0, 1).toUpperCase() + deal.slice(1)
+      return out
+    } else {
+      return v
+    }
+  })
+  return result.join('')
+}
