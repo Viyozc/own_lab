@@ -1,13 +1,13 @@
 #! /usr/bin/env node
 
 const program = require('commander')
-const appInfo = require('../package.json')
 const spawn = require('win-spawn')
 const fs = require('fs')
 const path = require('path')
 const join = require('path').join
 const exists = require('fs').existsSync
 const chalk = require('chalk')
+const appInfo = require('./package.json')
 
 if (process.argv.slice(2).join('') === '-v') {
   console.log('wh-cli: ' + appInfo.version)
